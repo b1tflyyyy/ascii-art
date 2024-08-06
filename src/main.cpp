@@ -1,10 +1,14 @@
+#include <cstddef>
 #include <iostream>
 #include <ascii-converter.hpp>
 
+#include <opencv2/core/mat.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 
 #include <bfl-perf-timer.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/videoio.hpp>
 
 int main(int argc, char** argv)
 {
@@ -14,11 +18,11 @@ int main(int argc, char** argv)
         return -1; 
     }
     
-    
     cv::Mat image{ cv::imread(argv[1], cv::IMREAD_GRAYSCALE) };
-    AAscii_Converter ascii_converter{ image };
+    AAscii_Converter ascii_converter{};
     
-    ascii_converter.Resize_Image_By_Width(250);
+    ascii_converter.Set_Base_Image(&image);
+    ascii_converter.Resize_Image(cv::Size{ 400, 150 });
     
     { // perf test 
         bfl::auto_perf_timer<> timer{ std::cout };
@@ -29,10 +33,12 @@ int main(int argc, char** argv)
     }
 
     ascii_converter.Save_Image_To_File("ascii_image.txt");
+    
+    const auto& formatted_image{ ascii_converter.Get_Formatted_Output_Ascii_Image() };
+    std::cout << std::data(formatted_image);
 
     cv::imshow("base image", image);
     cv::waitKey();
-      
 
     return 0;
 }
