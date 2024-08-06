@@ -1,40 +1,42 @@
 #include "ascii-converter.hpp"
 
-AAscii_Converter::AAscii_Converter(cv::Mat& base_image) :
-    Base_Image{ base_image }, 
-    Ascii_Image(base_image.size(), CV_8U, cv::Scalar(0)),
-    Look_Up_Table(1, 256, CV_8U, cv::Scalar(0)),
+AAscii_Converter::AAscii_Converter() :
+    Base_Image{ nullptr }, 
+    Ascii_Image{},
+    Look_Up_Table(1, 256, CV_8U, cv::Scalar::all(0)),
+    Formatted_Output_Ascii_Image{},
     Ascii_Art_Symbols{ '.', '-', '=', '*', ':', 'o', '&', '8', '#', '@' }
 {  
-    CV_Assert(Base_Image.isContinuous());
-    CV_Assert(Base_Image.type() == CV_8U);
-    CV_Assert(!Base_Image.empty());
-
     Create_Look_Up_Table();
 }
 
-void AAscii_Converter::Resize_Image_By_Width(const std::int32_t width)
+void AAscii_Converter::Set_Base_Image(cv::Mat* base_image)
 {
-    if (!width)
+    if (!base_image)
     {
-        return;
+        throw std::runtime_error{ "base_image == nullptr !" };
     }
-    
-    const auto base_image_size{ Base_Image.size() };
-    const auto resized_height{ static_cast<std::int32_t>(base_image_size.height * width / base_image_size.width) };
 
-    if (base_image_size.width > width || base_image_size.height > resized_height)
-    { 
-        cv::Mat tmp{}; 
-        cv::resize(Base_Image, tmp, cv::Size{ width, resized_height });
-        
-        Base_Image = tmp;   
-    }
+    CV_Assert(base_image->isContinuous());
+    CV_Assert(base_image->type() == CV_8U);
+    CV_Assert(base_image->channels() == 1);
+    CV_Assert(!base_image->empty());
+
+    Base_Image = base_image;
+    Ascii_Image.reserveBuffer(static_cast<std::size_t>(Base_Image->rows) * static_cast<std::size_t>(Base_Image->cols));
+}
+
+void AAscii_Converter::Resize_Image(const cv::Size size)
+{
+    cv::Mat tmp{}; 
+    cv::resize(*Base_Image, tmp, size);
+
+    *Base_Image = tmp;
 }
 
 void AAscii_Converter::Convert_Image_To_Ascii()
 {
-    cv::LUT(Base_Image, Look_Up_Table, Ascii_Image);
+    cv::LUT(*Base_Image, Look_Up_Table, Ascii_Image);
 }
 
 void AAscii_Converter::Save_Image_To_File(const std::filesystem::path& path)
@@ -46,11 +48,11 @@ void AAscii_Converter::Save_Image_To_File(const std::filesystem::path& path)
     }
  
     const uchar* ascii_ptr{ Ascii_Image.ptr() };
-    for (std::size_t i{}; i < Base_Image.rows; ++i)
+    for (std::size_t i{}; i < Base_Image->rows; ++i)
     {
-        for (std::size_t j{}; j < Base_Image.cols; ++j)
+        for (std::size_t j{}; j < Base_Image->cols; ++j)
         {
-            fout << ascii_ptr[i * Base_Image.cols + j];
+            fout << ascii_ptr[i * Base_Image->cols + j];
         }
         fout << '\n';
     }
@@ -59,6 +61,16 @@ void AAscii_Converter::Save_Image_To_File(const std::filesystem::path& path)
 const cv::Mat& AAscii_Converter::Get_Ascii_Image() const noexcept
 {
     return Ascii_Image;
+}
+
+const std::vector<uchar>& AAscii_Converter::Get_Formatted_Output_Ascii_Image(EOutput_Formatted_Ascii_Image action)
+{
+    if (action == EOutput_Formatted_Ascii_Image::CALCULATE)
+    {
+        Calculate_Formatted_Output_Ascii_Image();
+    }
+
+    return Formatted_Output_Ascii_Image;
 }
 
 std::size_t AAscii_Converter::Map_Values(const float old_value, const float old_value_min, const float old_value_max, const float new_min, const float new_max)
@@ -76,4 +88,25 @@ void AAscii_Converter::Create_Look_Up_Table()
     }
 }
 
+void AAscii_Converter::Calculate_Formatted_Output_Ascii_Image()
+{
+    Formatted_Output_Ascii_Image.clear();
+
+    // +1 for '\n' and for '\0'
+    Formatted_Output_Ascii_Image.reserve(static_cast<std::size_t>(Ascii_Image.cols + 1) * static_cast<std::size_t>(Ascii_Image.rows) + 1);
+
+    const uchar* ascii_image_ptr{ Ascii_Image.ptr() };
+    for (std::size_t i{}; i < Ascii_Image.rows; ++i)
+    {
+        for (std::size_t j{}; j < Ascii_Image.cols; ++j)
+        {
+            Formatted_Output_Ascii_Image.push_back(ascii_image_ptr[i * Ascii_Image.cols + j]);
+        } 
+
+        Formatted_Output_Ascii_Image.push_back('\n');
+    }
+    
+    // [..., '\n', '\0'] fix it ?
+    Formatted_Output_Ascii_Image.push_back('\0');
+}
 
