@@ -11,7 +11,9 @@ add_compile_options(-Wall -Wextra -Wconversion -fsanitize=address,leak,undefined
 
 find_package(OpenCV REQUIRED)
 
-include_directories(${OpenCV_INCLUDE_DIRS} ~/standard-extended-cpp-lib/header-only/include)
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_subdirectory(src)
 add_subdirectory(ascii-converter)
+
+add_subdirectory(performance-tests)
