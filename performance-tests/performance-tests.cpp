@@ -28,9 +28,8 @@ int main()
             ascii_converter.Get_Formatted_Output_Ascii_Image(AAscii_Converter::EOutput_Formatted_Ascii_Image::CALCULATE);
         }
     }
-
-    cv::imshow("Perf Test", image);
-    cv::waitKey();
+    
+    std::cout << std::data(ascii_converter.Get_Formatted_Output_Ascii_Image(AAscii_Converter::EOutput_Formatted_Ascii_Image::DEFAULT));
 
     return 0;
 }
