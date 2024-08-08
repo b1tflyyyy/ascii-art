@@ -93,17 +93,20 @@ void AAscii_Converter::Calculate_Formatted_Output_Ascii_Image()
     Formatted_Output_Ascii_Image.clear();
 
     // +1 for '\n' and for '\0'
-    Formatted_Output_Ascii_Image.reserve(static_cast<std::size_t>(Ascii_Image.cols + 1) * static_cast<std::size_t>(Ascii_Image.rows) + 1);
-
-    const uchar* ascii_image_ptr{ Ascii_Image.ptr() };
-    for (std::size_t i{}; i < Ascii_Image.rows; ++i)
+    Formatted_Output_Ascii_Image.resize(static_cast<std::size_t>(Ascii_Image.cols + 1) * static_cast<std::size_t>(Ascii_Image.rows) + 1);
+    
+    for (std::ptrdiff_t i{}; i < Ascii_Image.rows; ++i)
     {
-        for (std::size_t j{}; j < Ascii_Image.cols; ++j)
+        const auto offset{ i * static_cast<decltype(i)>(Ascii_Image.cols) };
+        std::ranges::uninitialized_copy_n(Ascii_Image.ptr() + offset, Ascii_Image.cols, std::ranges::begin(Formatted_Output_Ascii_Image) + offset, std::ranges::end(Formatted_Output_Ascii_Image));
+        
+        if (!i)
         {
-            Formatted_Output_Ascii_Image.push_back(ascii_image_ptr[i * Ascii_Image.cols + j]);
-        } 
+            Formatted_Output_Ascii_Image[Ascii_Image.cols] = '\n';
+            continue;
+        }    
 
-        Formatted_Output_Ascii_Image.push_back('\n');
+        Formatted_Output_Ascii_Image[offset] = '\n';
     }
     
     // [..., '\n', '\0'] fix it ?

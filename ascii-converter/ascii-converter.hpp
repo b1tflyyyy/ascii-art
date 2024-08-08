@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <filesystem>
 #include <vector>
-#include <fstream>
 #include <stdexcept>
-#include <format>
+#include <fstream>
+#include <algorithm>
 
 #include <opencv2/core/hal/interface.h>
 #include <opencv2/core/types.hpp>
