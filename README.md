@@ -22,7 +22,7 @@ You can use it as a plugin for your webcam and have fun with your friends, you c
 |             Method                |  Image Size |  Iteration Count        | time (for all iterations) |
 |:---------------------------------:|:-----------:|:-----------------------:|:-------------------------:|
 | Convert_Image_To_Ascii            | 500x500     | 1'000                   |          ~88ms            |
-| Get_Formatted_Output_Ascii_Image  | 500x500     | 1'000                   |          ~6591ms          |
+| Get_Formatted_Output_Ascii_Image  | 500x500     | 1'000                   |          ~40ms            |
 
 ## ⚒ Results
 
