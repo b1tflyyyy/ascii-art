@@ -91,25 +91,22 @@ void AAscii_Converter::Create_Look_Up_Table()
 void AAscii_Converter::Calculate_Formatted_Output_Ascii_Image()
 {
     Formatted_Output_Ascii_Image.clear();
-
+    
     // +1 for '\n' and for '\0'
     Formatted_Output_Ascii_Image.resize(static_cast<std::size_t>(Ascii_Image.cols + 1) * static_cast<std::size_t>(Ascii_Image.rows) + 1);
     
+    uchar* formatted_ascii_ptr{ Formatted_Output_Ascii_Image.data() };
     for (std::ptrdiff_t i{}; i < Ascii_Image.rows; ++i)
     {
-        const auto offset{ i * static_cast<decltype(i)>(Ascii_Image.cols) };
-        std::ranges::uninitialized_copy_n(Ascii_Image.ptr() + offset, Ascii_Image.cols, std::ranges::begin(Formatted_Output_Ascii_Image) + offset, std::ranges::end(Formatted_Output_Ascii_Image));
-        
-        if (!i)
-        {
-            Formatted_Output_Ascii_Image[Ascii_Image.cols] = '\n';
-            continue;
-        }    
+        const auto ascii_image_offset{ i * static_cast<decltype(i)>(Ascii_Image.cols) };
 
-        Formatted_Output_Ascii_Image[offset] = '\n';
+        std::ranges::copy_n(Ascii_Image.ptr() + ascii_image_offset, 
+                            Ascii_Image.cols, 
+                            formatted_ascii_ptr);
+               
+        formatted_ascii_ptr += Ascii_Image.cols;
+        *formatted_ascii_ptr = '\n';
+        ++formatted_ascii_ptr;   
     }
-    
-    // [..., '\n', '\0'] fix it ?
-    Formatted_Output_Ascii_Image.push_back('\0');
 }
 
