@@ -14,8 +14,8 @@ You can use it as a plugin for your webcam and have fun with your friends, you c
 
 ## 🖥 Supported Systems
 
-- [X] GNU/Linux (verified)
-- [ ] Windows (not verified)
+- [X] GNU/Linux (verified on clang)
+- [X] Windows (verified on MSVC)
 
 ## ⚡️ Performance
 
