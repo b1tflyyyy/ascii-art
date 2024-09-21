@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include <ascii-converter.hpp>
 
 #include <opencv2/core/mat.hpp>
